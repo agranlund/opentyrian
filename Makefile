@@ -6,8 +6,8 @@ WITH_NETWORK := false
 WITH_HW_OPL := true
 
 ATARI_PREFIX := /opt/cross-mint/m68k-atari-mint
-ATARI_CFLAGS := -m68020-60 -I$(ATARI_PREFIX)/include -I$(ATARI_PREFIX)/include/SDL
-ATARI_LDFLAGS := -m68020-60 -L$(ATARI_PREFIX)/lib -lsdl
+ATARI_CFLAGS := -m68000 -msoft-float -I$(ATARI_PREFIX)/include -I$(ATARI_PREFIX)/include/SDL
+ATARI_LDFLAGS := -m68000 -msoft-float -L$(ATARI_PREFIX)/lib -lsdl
 
 ################################################################################
 
