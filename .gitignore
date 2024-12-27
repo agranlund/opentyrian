@@ -34,3 +34,10 @@ tyrian.sav
 
 # Doxygen output
 /doc/doxygen/
+
+# Mac crap
+.DS_Store
+
+# Dist
+tyrian.zip
+tyrian/*
