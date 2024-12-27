@@ -1127,6 +1127,11 @@ level_loop:
 		play_song(levelSong - 1);
 	}
 
+#if 0   /* todo: opl */
+    lds_update();
+    lds_update();
+    lds_update();
+#endif
 
 	if (!endLevel) // draw HUD
 	{

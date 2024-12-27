@@ -23,6 +23,9 @@
  * Copyright (C) 1998-2001 Ken Silverman
  * Ken Silverman's official web site: "http://www.advsys.net/ken"
  */
+
+#ifndef WITH_HW_OPL
+
 #include "opl.h"
 
 #include <math.h>
@@ -1611,3 +1614,5 @@ void adlib_getsample(Bit16s* sndptr, Bits numsamples) {
 
 	}
 }
+
+#endif /* !WITH_HW_OPL */

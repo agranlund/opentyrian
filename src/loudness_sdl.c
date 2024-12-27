@@ -16,6 +16,9 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
+#ifndef WITH_HW_OPL
+
 #include "loudness.h"
 
 #include "file.h"
@@ -29,7 +32,9 @@ float music_volume = 0, sample_volume = 0;
 bool music_stopped = true;
 unsigned int song_playing = 0;
 
-bool audio_disabled = false, music_disabled = false, samples_disabled = false;
+bool audio_disabled = false;
+bool music_disabled = false;
+bool samples_disabled = false;
 
 /* SYN: These shouldn't be used outside this file. Hands off! */
 FILE *music_file = NULL;
@@ -288,3 +293,4 @@ void JE_multiSamplePlay(JE_byte *buffer, JE_word size, JE_byte chan, JE_byte vol
 	SDL_UnlockAudio();
 }
 
+#endif /* !WITH_HW_OPL */

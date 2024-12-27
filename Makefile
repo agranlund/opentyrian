@@ -1,14 +1,13 @@
 # BUILD SETTINGS ###############################################################
 
-ifneq ($(filter Msys Cygwin, $(shell uname -o)), )
-    PLATFORM := WIN32
-    TYRIAN_DIR = C:\\TYRIAN
-else
-    PLATFORM := UNIX
-    TYRIAN_DIR = $(gamesdir)/tyrian
-endif
+PLATFORM := ATARI
+TYRIAN_DIR = $(gamesdir)/tyrian
+WITH_NETWORK := false
+WITH_HW_OPL := true
 
-WITH_NETWORK := true
+ATARI_PREFIX := /opt/cross-mint/m68k-atari-mint
+ATARI_CFLAGS := -m68020-60 -I$(ATARI_PREFIX)/include -I$(ATARI_PREFIX)/include/SDL
+ATARI_LDFLAGS := -m68020-60 -L$(ATARI_PREFIX)/lib -lsdl
 
 ################################################################################
 
@@ -16,7 +15,7 @@ WITH_NETWORK := true
 
 SHELL = /bin/sh
 
-CC ?= gcc
+CC = m68k-atari-mint-gcc
 INSTALL ?= install
 PKG_CONFIG ?= pkg-config
 
@@ -42,7 +41,7 @@ gamesdir ?= $(datadir)/games
 
 ###
 
-TARGET := opentyrian
+TARGET := tyrian.prg
 
 SRCS := $(wildcard src/*.c)
 OBJS := $(SRCS:src/%.c=obj/%.o)
@@ -52,6 +51,10 @@ DEPS := $(SRCS:src/%.c=obj/%.d)
 
 ifeq ($(WITH_NETWORK), true)
     EXTRA_CPPFLAGS += -DWITH_NETWORK
+endif
+
+ifeq ($(WITH_OPL), true)
+    EXTRA_CPPFLAGS += -DWITH_OPL
 endif
 
 OPENTYRIAN_VERSION := $(shell $(VCS_IDREV) 2>/dev/null && \
@@ -71,24 +74,33 @@ LDFLAGS :=
 LDLIBS := 
 
 ifeq ($(WITH_NETWORK), true)
-    SDL_CPPFLAGS := $(shell $(PKG_CONFIG) sdl SDL_net --cflags)
-    SDL_LDFLAGS := $(shell $(PKG_CONFIG) sdl SDL_net --libs-only-L --libs-only-other)
-    SDL_LDLIBS := $(shell $(PKG_CONFIG) sdl SDL_net --libs-only-l)
+#    SDL_CPPFLAGS := $(shell $(PKG_CONFIG) sdl SDL_net --cflags)
+#    SDL_LDFLAGS := $(shell $(PKG_CONFIG) sdl SDL_net --libs-only-L --libs-only-other)
+#    SDL_LDLIBS := $(shell $(PKG_CONFIG) sdl SDL_net --libs-only-l)
 else
-    SDL_CPPFLAGS := $(shell $(PKG_CONFIG) sdl --cflags)
-    SDL_LDFLAGS := $(shell $(PKG_CONFIG) sdl --libs-only-L --libs-only-other)
-    SDL_LDLIBS := $(shell $(PKG_CONFIG) sdl --libs-only-l)
+#    SDL_CPPFLAGS := $(shell $(PKG_CONFIG) sdl --cflags)
+#    SDL_LDFLAGS := $(shell $(PKG_CONFIG) sdl --libs-only-L --libs-only-other)
+#    SDL_LDLIBS := $(shell $(PKG_CONFIG) sdl --libs-only-l)
+
+    SDL_LDLIBS := -lsdl -lgem
+
 endif
 
 ALL_CPPFLAGS = -DTARGET_$(PLATFORM) \
                -DTYRIAN_DIR='"$(TYRIAN_DIR)"' \
                $(EXTRA_CPPFLAGS) \
                $(SDL_CPPFLAGS) \
-               $(CPPFLAGS)
+               $(CPPFLAGS) \
+			   $(ATARI_CFLAGS)
+
 ALL_CFLAGS = -std=iso9899:1999 \
-             $(CFLAGS)
+             $(CFLAGS) \
+			 $(ATARI_CFLAGS)
+
 ALL_LDFLAGS = $(SDL_LDFLAGS) \
-              $(LDFLAGS)
+              $(LDFLAGS) \
+			  $(ATARI_LDFLAGS)
+
 ALL_LDLIBS = -lm \
              $(SDL_LDLIBS) \
              $(LDLIBS)
@@ -131,6 +143,9 @@ clean :
 
 $(TARGET) : $(OBJS)
 	$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^ $(ALL_LDLIBS)
+	m68k-atari-mint-strip $(TARGET)
+	m68k-atari-mint-flags -S $(TARGET)
+	m68k-atari-mint-stack --fix=256k $(TARGET)
 
 -include $(DEPS)
 
