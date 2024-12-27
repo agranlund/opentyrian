@@ -39,5 +39,6 @@ tyrian.sav
 .DS_Store
 
 # Dist
+tyrian.prg
 tyrian.zip
 tyrian/*
