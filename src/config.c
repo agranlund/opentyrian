@@ -271,7 +271,7 @@ bool save_opentyrian_config( void )
 
 	config_set_string_option(section, "scaler", scalers[scaler].name);
 	
-#ifndef TARGET_WIN32
+#if !defined(TARGET_WIN32)
 	mkdir(get_user_directory(), 0700);
 #else
 	mkdir(get_user_directory());
@@ -283,7 +283,7 @@ bool save_opentyrian_config( void )
 	
 	config_write(config, file);
 	
-#ifndef TARGET_WIN32
+#if !defined(TARGET_WIN32) && !defined(TARGET_ATARI)
 	fsync(fileno(file));
 #endif
 	fclose(file);
@@ -959,7 +959,7 @@ void JE_saveConfiguration( void )
 	
 	JE_encryptSaveTemp();
 	
-#ifndef TARGET_WIN32
+#if !defined(TARGET_WIN32)
 	mkdir(get_user_directory(), 0700);
 #else
 	mkdir(get_user_directory());
@@ -970,7 +970,7 @@ void JE_saveConfiguration( void )
 	{
 		efwrite(saveTemp, 1, sizeof(saveTemp), f);
 
-#ifndef TARGET_WIN32
+#if !defined(TARGET_WIN32) && !defined(TARGET_ATARI)
 		fsync(fileno(f));
 #endif
 		fclose(f);
@@ -1002,7 +1002,7 @@ void JE_saveConfiguration( void )
 		
 		efwrite(keySettings, sizeof(*keySettings), COUNTOF(keySettings), f);
 		
-#ifndef TARGET_WIN32
+#if !defined(TARGET_WIN32) && !defined(TARGET_ATARI)
 		fsync(fileno(f));
 #endif
 		fclose(f);

@@ -42,7 +42,7 @@ JE_EnemyDatType enemyDat;
 /* EPISODE variables */
 JE_byte    initial_episode_num, episodeNum = 0;
 JE_boolean episodeAvail[EPISODE_MAX]; /* [1..episodemax] */
-char       episode_file[13], cube_file[13];
+char       episode_file[16], cube_file[16];
 
 JE_longint episode1DataLoc;
 

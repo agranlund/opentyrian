@@ -55,7 +55,7 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef __ATARI__
+#ifdef TARGET_ATARI
 #include <mint/osbind.h>
 #endif
 
@@ -276,7 +276,7 @@ int main( int argc, char *argv[] )
 {
 	mt_srand(time(NULL));
 
-#ifdef __ATARI__
+#ifdef TARGET_ATARI
 #if 0
     Fforce(1, -2);
 #endif

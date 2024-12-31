@@ -23,7 +23,7 @@
 
 JE_LvlPosType lvlPos;
 
-char levelFile[13]; /* string [12] */
+char levelFile[16]; /* string [12] */
 JE_word lvlNum;
 
 void JE_analyzeLevel( void )

@@ -496,7 +496,7 @@ void code_to_assignment( Joystick_assignment *assignment, const char *buffer )
  */
 const char *assignment_to_code( const Joystick_assignment *assignment )
 {
-	static char name[7];
+	static char name[128];
 	
 	switch (assignment->type)
 	{

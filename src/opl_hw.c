@@ -29,8 +29,8 @@
 #include "isa.h"
 #include <math.h>
 #include <stdbool.h>
+#include <stdio.h>
 
-// todo: use isa_bios
 static unsigned int opl_port = 0x388;
 static int opl_delay_idx = 8;
 static int opl_delay_val = 32;

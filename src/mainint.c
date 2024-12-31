@@ -4158,7 +4158,7 @@ const char *JE_getName( JE_byte pnum )
 
 void JE_playerCollide( Player *this_player, JE_byte playerNum_ )
 {
-	char tempStr[256];
+	static char tempStr[1024];
 
 	for (int z = 0; z < 100; z++)
 	{
