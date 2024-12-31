@@ -55,6 +55,10 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef __ATARI__
+#include <mint/osbind.h>
+#endif
+
 const char *opentyrian_str = "OpenTyrian";
 const char *opentyrian_version = OPENTYRIAN_VERSION;
 
@@ -272,6 +276,12 @@ int main( int argc, char *argv[] )
 {
 	mt_srand(time(NULL));
 
+#ifdef __ATARI__
+#if 0
+    Fforce(1, -2);
+#endif
+    printf("\033E");    // clear-home
+#endif
 	printf("\nWelcome to... >> %s %s <<\n\n", opentyrian_str, opentyrian_version);
 
 	printf("Copyright (C) 2007-2013 The OpenTyrian Development Team\n\n");

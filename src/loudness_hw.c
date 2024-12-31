@@ -19,6 +19,7 @@
 
 #ifdef WITH_HW_OPL
 
+#include <mint/osbind.h>
 #include "loudness.h"
 
 #include "file.h"
@@ -50,9 +51,83 @@ Uint8 channel_vol[SFX_CHANNELS];
 int sound_init_state = false;
 int freq = 11025 * OUTPUT_QUALITY;
 
-static SDL_AudioCVT audio_cvt; // used for format conversion
+/* static SDL_AudioCVT audio_cvt;*/ // used for format conversion
 
 void audio_cb( void *userdata, unsigned char *feedme, int howmuch );
+
+
+static uint16_t disable_interrupts() {
+    register uint16_t ret __asm__ ("d0");
+    __asm__ volatile (
+        "   move.w  sr,%0\n\t"
+        "   or.w    #0x0700,sr\n\t"
+        : "=r"(ret) : : __CLOBBER_RETURN("d0") "cc" );
+    return ret;
+}
+
+static void restore_interrupts(uint16_t oldsr) {
+    __asm__ volatile (
+        "   move.w  sr,d0\n\t"
+        "   and.w   #0xF0FF,d0\n\t"
+        "   and.w   #0x0F00,%0\n\t"
+        "   or.w    %0,d0\n\t"
+        "   move.w  d0,sr\n\t"
+        : : "d"(oldsr) : "d0", "cc" );
+}
+
+extern int lds_update(void);
+
+static void timer_func() {
+    static uint32_t elapsed = 0;
+    static uint32_t last200hz = 0;
+    const uint32_t rate = 14285;    // 70hz
+
+    if (audio_disabled || music_disabled || music_stopped) {
+        elapsed = 0;
+        last200hz = 0;
+        return;
+    }
+
+    // assume 20ms per frame (50hz)
+    uint32_t microseconds = 20 * 1000UL;
+    // get more accurate reading from 200hz timer if possible
+    uint32_t this200hz = *((volatile uint32_t*)0x4ba);
+    if (last200hz && (this200hz > last200hz)) {
+        // 5ms per 200hz tick
+        microseconds = (this200hz - last200hz) * 5000UL;
+    }
+    last200hz = this200hz;
+    elapsed += microseconds;
+    for (int i=0; i<8 && (elapsed >= rate); i++, elapsed -= rate) {
+        lds_update();
+    }
+}
+
+static void init_timer() {
+    uint16_t sr = disable_interrupts();
+    unsigned long* vblqueue = (unsigned long*) *((unsigned long*)0x456);
+    unsigned long nvbls = *((unsigned long*)0x454);
+    for (unsigned long i = 0; i < nvbls; i++) {
+        if (vblqueue[i] == 0) {
+            vblqueue[i] = (unsigned long) &timer_func;
+            break;
+        }
+    }
+    restore_interrupts(sr);
+}
+
+static void deinit_timer() {
+    uint16_t sr = disable_interrupts();
+    unsigned long* vblqueue = (unsigned long*) *((unsigned long*)0x456);
+    unsigned long nvbls = *((unsigned long*)0x454);
+    for (unsigned long i = 0; i < nvbls; i++) {
+        if (vblqueue[i] == (unsigned long) &timer_func) {
+            vblqueue[i] = 0;
+            break;
+        }
+    }
+    restore_interrupts(sr);
+}
 
 void load_song( unsigned int song_num );
 
@@ -62,6 +137,7 @@ bool init_audio( void )
 		return false;
 	
 	opl_init();
+    Supexec(init_timer);
 	return true;
 }
 
@@ -70,13 +146,16 @@ void deinit_audio( void )
 	if (audio_disabled)
 		return;
 	
+    stop_song();
+    Supexec(deinit_timer);
+
 	for (unsigned int i = 0; i < SFX_CHANNELS; i++)
 	{
 		free(channel_buffer[i]);
 		channel_buffer[i] = channel_pos[i] = NULL;
 		channel_len[i] = 0;
 	}
-	
+
 	lds_free();
 }
 
@@ -101,6 +180,7 @@ void load_song( unsigned int song_num )
 	if (audio_disabled)
 		return;
 	
+    stop_song();
 	if (song_num < song_count)
 	{
 		unsigned int song_size = song_offset[song_num + 1] - song_offset[song_num];
@@ -132,7 +212,10 @@ void restart_song( void )
 
 void stop_song( void )
 {
-	music_stopped = true;
+    if (!music_stopped) {
+    	music_stopped = true;
+        lds_rewind();
+    }
 }
 
 void fade_song( void )

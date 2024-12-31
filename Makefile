@@ -6,7 +6,7 @@ WITH_NETWORK := false
 WITH_HW_OPL := true
 
 ATARI_PREFIX := /opt/cross-mint/m68k-atari-mint
-ATARI_CFLAGS := -m68000 -msoft-float -I$(ATARI_PREFIX)/include -I$(ATARI_PREFIX)/include/SDL
+ATARI_CFLAGS := -m68000 -msoft-float -I$(ATARI_PREFIX)/include -I$(ATARI_PREFIX)/include/SDL -D__ATARI__
 ATARI_LDFLAGS := -m68000 -msoft-float -L$(ATARI_PREFIX)/lib -lsdl
 
 ################################################################################
@@ -53,8 +53,8 @@ ifeq ($(WITH_NETWORK), true)
     EXTRA_CPPFLAGS += -DWITH_NETWORK
 endif
 
-ifeq ($(WITH_OPL), true)
-    EXTRA_CPPFLAGS += -DWITH_OPL
+ifeq ($(WITH_HW_OPL), true)
+    EXTRA_CPPFLAGS += -DWITH_HW_OPL
 endif
 
 OPENTYRIAN_VERSION := $(shell $(VCS_IDREV) 2>/dev/null && \
