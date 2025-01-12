@@ -4,7 +4,12 @@ mkdir -p tyrian
 rm -f tyrian/*
 cp COPYING tyrian/copying
 cp README tyrian/readme
-cp tyrian.prg tyrian/tyrian.prg
+make clean
+make target=68000
+cp tyrian00.prg tyrian/tyrian00.prg
+make clean
+make target=68060
+cp tyrian60.prg tyrian/tyrian60.prg
 cp ../SDL-1.2/README.MiNT tyrian/readme.sdl
 
 rm -f tyrian.zip
