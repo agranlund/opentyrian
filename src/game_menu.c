@@ -2177,12 +2177,11 @@ void JE_scaleBitmap( SDL_Surface *dst_bitmap, const SDL_Surface *src_bitmap,  in
 	assert(src_bitmap != NULL && dst_bitmap != NULL);
 	assert(x1 >= 0 && y1 >= 0 && x2 < src_bitmap->pitch && y2 < src_bitmap->h);
 
-	int w = x2 - x1 + 1,
-	    h = y2 - y1 + 1;
-	float base_skip_w = src_bitmap->pitch / (float)w,
-	      base_skip_h = src_bitmap->h / (float)h;
-	float cumulative_skip_w, cumulative_skip_h;
-
+	int w = x2 - x1 + 1;
+	int h = y2 - y1 + 1;
+    unsigned int base_skip_w = (src_bitmap->pitch << 8) / w;
+    unsigned int base_skip_h = (src_bitmap->h << 8) / h;
+	unsigned int cumulative_skip_w, cumulative_skip_h;
 
 	//Okay, it's time to loop through and add bits of A to a rectangle in B
 	Uint8 *dst = dst_bitmap->pixels;  /* 8-bit specific */
@@ -2194,7 +2193,7 @@ void JE_scaleBitmap( SDL_Surface *dst_bitmap, const SDL_Surface *src_bitmap,  in
 	for (int i = 0; i < h; i++)
 	{
 		//this sets src to the beginning of our desired line
-		src = src_w = (Uint8 *)(src_bitmap->pixels) + (src_bitmap->w * ((unsigned int)cumulative_skip_h));
+		src = src_w = (Uint8 *)(src_bitmap->pixels) + (src_bitmap->w * (cumulative_skip_h>>8));
 		cumulative_skip_h += base_skip_h;
 		cumulative_skip_w = 0;
 
@@ -2205,7 +2204,7 @@ void JE_scaleBitmap( SDL_Surface *dst_bitmap, const SDL_Surface *src_bitmap,  in
 			dst++;
 
 			cumulative_skip_w += base_skip_w;
-			src = src_w + ((unsigned int)cumulative_skip_w); //value is floored
+			src = src_w + (cumulative_skip_w >> 8); //value is floored
 		}
 
 		dst += dst_bitmap->pitch - w;
