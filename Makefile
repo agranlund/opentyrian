@@ -3,11 +3,26 @@
 PLATFORM := ATARI
 TYRIAN_DIR = $(gamesdir)/tyrian
 WITH_NETWORK := false
-WITH_HW_OPL := true
+WITH_SOUNDBLASTER := true
+
+
+ifeq ($(target),68060)
+ATARI_CPU       := 68060
+ATARI_CPUFLAG   := -m68060
+ATARI_BIN       := tyrian60.prg
+else ifeq ($(target),68020)
+ATARI_CPU       := 68020
+ATARI_CPUFLAG   := -m68020-60
+ATARI_BIN       := tyrian20.prg
+else
+ATARI_CPU       := 68000
+ATARI_CPUFLAG   := -m68000 -msoft-float
+ATARI_BIN       := tyrian00.prg
+endif
 
 ATARI_PREFIX := /opt/cross-mint/m68k-atari-mint
-ATARI_CFLAGS := -m68000 -msoft-float -I$(ATARI_PREFIX)/include -I$(ATARI_PREFIX)/include/SDL
-ATARI_LDFLAGS := -m68000 -msoft-float -L$(ATARI_PREFIX)/lib -lsdl
+ATARI_CFLAGS := -DATARI_CPU=$(ATARI_CPU) $(ATARI_CPUFLAG) -I$(ATARI_PREFIX)/include -I$(ATARI_PREFIX)/include/SDL
+ATARI_LDFLAGS := $(ATARI_CPUFLAG) -L$(ATARI_PREFIX)/lib -lsdl
 
 ################################################################################
 
@@ -41,7 +56,7 @@ gamesdir ?= $(datadir)/games
 
 ###
 
-TARGET := tyrian.prg
+TARGET := $(ATARI_BIN)
 
 SRCS := $(wildcard src/*.c)
 OBJS := $(SRCS:src/%.c=obj/%.o)
@@ -53,8 +68,8 @@ ifeq ($(WITH_NETWORK), true)
     EXTRA_CPPFLAGS += -DWITH_NETWORK
 endif
 
-ifeq ($(WITH_HW_OPL), true)
-    EXTRA_CPPFLAGS += -DWITH_HW_OPL
+ifeq ($(WITH_SOUNDBLASTER), true)
+    EXTRA_CPPFLAGS += -DWITH_SOUNDBLASTER
 endif
 
 OPENTYRIAN_VERSION := $(shell $(VCS_IDREV) 2>/dev/null && \
@@ -142,7 +157,7 @@ clean :
 	rm -f $(TARGET)
 
 $(TARGET) : $(OBJS)
-	$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -o $@ $^ $(ALL_LDLIBS)
+	$(CC) $(ALL_CFLAGS) $(ALL_LDFLAGS) -Wl,-Map mapfile -o $@ $^ $(ALL_LDLIBS)
 	m68k-atari-mint-strip $(TARGET)
 	m68k-atari-mint-flags -S $(TARGET)
 	m68k-atari-mint-stack --fix=256k $(TARGET)

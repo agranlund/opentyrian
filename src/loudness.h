@@ -24,7 +24,11 @@
 
 #include "SDL.h"
 
+#if defined(TARGET_ATARI)
 #define SFX_CHANNELS 8
+#else
+#define SFX_CHANNELS 8
+#endif
 
 #if defined(TARGET_GP2X) || defined(TARGET_DINGUX)
 #define OUTPUT_QUALITY 2  // 22 kHz

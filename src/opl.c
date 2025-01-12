@@ -24,7 +24,7 @@
  * Ken Silverman's official web site: "http://www.advsys.net/ken"
  */
 
-#ifndef WITH_HW_OPL
+#ifndef WITH_SOUNDBLASTER
 
 #include "opl.h"
 
@@ -1615,4 +1615,4 @@ void adlib_getsample(Bit16s* sndptr, Bits numsamples) {
 	}
 }
 
-#endif /* !WITH_HW_OPL */
+#endif /* !WITH_SOUNDBLASTER */

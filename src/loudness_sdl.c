@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef WITH_HW_OPL
+#ifndef WITH_SOUNDBLASTER
 
 #include "loudness.h"
 
@@ -293,4 +293,4 @@ void JE_multiSamplePlay(JE_byte *buffer, JE_word size, JE_byte chan, JE_byte vol
 	SDL_UnlockAudio();
 }
 
-#endif /* !WITH_HW_OPL */
+#endif /* !WITH_SOUNDBLASTER */
